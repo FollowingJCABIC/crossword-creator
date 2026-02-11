@@ -369,6 +369,11 @@ textarea {
   align-items: center;
 }
 
+.hero-link .ghost {
+  text-decoration: none;
+  display: inline-block;
+}
+
 .select-row {
   display: flex;
   align-items: center;

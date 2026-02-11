@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crossword Creator | Sudoku Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/sudoku.css" />
+  </head>
+  <body class="theme-paper">
+    <div class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Sudoku Studio</p>
+          <h1>Make puzzles your own.</h1>
+          <p class="subhead">
+            Customize difficulty, themes, and play style. Notes, hints, timer,
+            and keyboard controls included.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <div class="view-toggle" role="tablist" aria-label="View switcher">
+            <button id="view-play" class="btn small active" role="tab" aria-selected="true">
+              Play
+            </button>
+            <button id="view-learn" class="btn small" role="tab" aria-selected="false">
+              Learn
+            </button>
+          </div>
+          <button id="new-game" class="btn primary">New Game</button>
+          <button id="restart" class="btn">Restart</button>
+          <button id="check" class="btn">Check</button>
+          <button id="solve" class="btn">Reveal</button>
+        </div>
+      </header>
+
+      <main id="play-view" class="layout">
+        <section class="board-panel">
+          <div class="status-bar">
+            <div class="status-group">
+              <span class="label">Difficulty</span>
+              <span id="status-difficulty" class="value">Medium</span>
+            </div>
+            <div class="status-group">
+              <span class="label">Seed</span>
+              <span id="status-seed" class="value">—</span>
+            </div>
+            <div class="status-group">
+              <span class="label">Timer</span>
+              <span id="timer" class="value">00:00</span>
+            </div>
+          </div>
+
+          <div id="board" class="board" aria-label="Sudoku board"></div>
+
+          <div class="controls">
+            <div class="toggle-group">
+              <button id="toggle-notes" class="btn small">Notes</button>
+              <button id="erase" class="btn small">Erase</button>
+              <button id="hint" class="btn small">Hint</button>
+              <button id="auto-notes" class="btn small">Auto Notes</button>
+              <button id="undo" class="btn small">Undo</button>
+              <button id="redo" class="btn small">Redo</button>
+            </div>
+            <div id="numpad" class="numpad"></div>
+          </div>
+        </section>
+
+        <aside class="settings">
+          <h2>Customize</h2>
+
+          <div class="setting">
+            <label for="difficulty">Difficulty</label>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+
+          <div class="setting">
+            <label for="size">Board Size</label>
+            <select id="size">
+              <option value="4">4x4 (Mini)</option>
+              <option value="9" selected>9x9 (Classic)</option>
+            </select>
+          </div>
+
+          <div class="setting">
+            <label for="theme">Theme</label>
+            <select id="theme">
+              <option value="paper" selected>Paper</option>
+              <option value="midnight">Midnight</option>
+              <option value="citrus">Citrus</option>
+            </select>
+          </div>
+
+          <div class="setting">
+            <label for="seed">Seed</label>
+            <input id="seed" type="text" placeholder="leave blank for random" />
+          </div>
+
+          <div class="setting">
+            <label for="scale">Board Scale</label>
+            <input id="scale" type="range" min="85" max="120" value="100" />
+          </div>
+
+          <div class="setting toggles">
+            <label>
+              <input id="toggle-timer" type="checkbox" checked />
+              Show timer
+            </label>
+            <label>
+              <input id="toggle-peers" type="checkbox" checked />
+              Highlight row/col/box
+            </label>
+            <label>
+              <input id="toggle-same" type="checkbox" checked />
+              Highlight same numbers
+            </label>
+            <label>
+              <input id="toggle-autocheck" type="checkbox" />
+              Auto-check mistakes
+            </label>
+          </div>
+
+          <div class="setting">
+            <button id="apply-settings" class="btn primary full">Apply Settings</button>
+          </div>
+
+          <div class="setting music">
+            <h3>Counterpoint Generator</h3>
+            <p class="music-note">
+              A Bach-inspired two-voice counterpoint with cadences and passing tones.
+            </p>
+            <div class="music-controls">
+              <button id="music-toggle" class="btn small">Start Music</button>
+              <label>
+                Volume
+                <input id="music-volume" type="range" min="0" max="100" value="35" />
+              </label>
+              <label>
+                Tempo
+                <input id="music-tempo" type="range" min="50" max="120" value="78" />
+              </label>
+            </div>
+          </div>
+
+          <div class="setting tips">
+            <h3>Shortcuts</h3>
+            <p>Arrow keys move, 1-9 enter, 0 clears, N toggles notes, H hint, A auto notes.</p>
+          </div>
+
+          <div class="setting scripture">
+            <h3>Daily Scripture</h3>
+            <p id="scripture-date" class="scripture-date">—</p>
+            <div class="scripture-card">
+              <p id="scripture-text" class="scripture-text">
+                Add your favorite verses in the app to see them here each day.
+              </p>
+              <p id="scripture-ref" class="scripture-ref">Reference</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <section id="learn-view" class="learn-view hidden" aria-label="Sudoku strategies">
+        <div class="learn-hero">
+          <div>
+            <p class="eyebrow">How To Solve</p>
+            <h2>Constraint-based reasoning beats scanning rows.</h2>
+            <p class="subhead">
+              Looking for the most filled row or column is a good start, but strong
+              Sudoku solving relies on consistent candidate pruning and logical patterns.
+            </p>
+          </div>
+          <div class="learn-card">
+            <h3>Core Strategy Lens</h3>
+            <p>
+              Every empty cell is the intersection of three constraint systems: row,
+              column, and box. The goal is to reduce candidates at that intersection
+              until one value remains.
+            </p>
+          </div>
+        </div>
+
+        <div class="strategy-grid">
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">5</div>
+              <div class="mini-cell">1 3</div>
+              <div class="mini-cell highlight">4</div>
+              <div class="mini-cell">1 3</div>
+              <div class="mini-cell filled">9</div>
+              <div class="mini-cell">1 3</div>
+              <div class="mini-cell filled">7</div>
+            </div>
+            <div class="strategy-content">
+              <h4>1. Pencil Marks (Candidate Notation)</h4>
+              <p>Write all possible numbers that can fit in each empty cell.</p>
+              <p>Remove candidates when a number appears in the same row, column, or box.</p>
+              <p class="example">Example: a cell reduced to “4” becomes an immediate placement.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">6</div>
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell filled">7</div>
+              <div class="mini-cell highlight">3</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">9</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">5</div>
+            </div>
+            <div class="strategy-content">
+              <h4>2. Single Candidate (Naked Single)</h4>
+              <p>If a cell has only one possible number, it must be that number.</p>
+              <p class="example">Example: the highlighted cell has only “3” left.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell">1 7</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">5</div>
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell highlight">7</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">6</div>
+              <div class="mini-cell filled">9</div>
+            </div>
+            <div class="strategy-content">
+              <h4>3. Hidden Single</h4>
+              <p>A number appears in only one cell of a row, column, or box.</p>
+              <p class="example">Example: only the highlighted cell can take “7”.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 4;">
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell">2 3</div>
+              <div class="mini-cell">2 3</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell highlight">4</div>
+              <div class="mini-cell highlight">1</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell">2 3</div>
+              <div class="mini-cell">2 3</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell">1 4</div>
+              <div class="mini-cell">1 4</div>
+            </div>
+            <div class="strategy-content">
+              <h4>4. Box–Line Interaction (Pointing Pairs / Triples)</h4>
+              <p>If a number in a box can only occur in one row or column, it cannot appear elsewhere in that line.</p>
+              <p class="example">Example: the highlighted row inside the box forces eliminations outside the box.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell filled">6</div>
+              <div class="mini-cell highlight">1 9</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell highlight">1 9</div>
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell filled">5</div>
+              <div class="mini-cell">1 4 9</div>
+              <div class="mini-cell filled">7</div>
+            </div>
+            <div class="strategy-content">
+              <h4>5. Naked Pairs</h4>
+              <p>Two cells share the exact same two candidates.</p>
+              <p class="example">Example: remove 1 and 9 from the rest of the region.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell">2 5 7</div>
+              <div class="mini-cell highlight">2 5 9</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell highlight">2 5 6</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">7</div>
+              <div class="mini-cell filled">9</div>
+            </div>
+            <div class="strategy-content">
+              <h4>6. Hidden Pairs</h4>
+              <p>Two numbers appear only in the same two cells within a region.</p>
+              <p class="example">Example: lock the two highlighted cells to those candidates.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 4;">
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell">1 2</div>
+              <div class="mini-cell highlight">3</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell">1 2</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">2</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">4</div>
+            </div>
+            <div class="strategy-content">
+              <h4>7. Scanning Intersections</h4>
+              <p>Check row, column, and box together to eliminate candidates quickly.</p>
+              <p class="example">Example: the intersection leaves only one valid spot.</p>
+            </div>
+          </article>
+
+          <article class="strategy-card">
+            <div class="mini-board" style="--mini-size: 3;">
+              <div class="mini-cell">2 5</div>
+              <div class="mini-cell highlight">5?</div>
+              <div class="mini-cell">2 7</div>
+              <div class="mini-cell filled">1</div>
+              <div class="mini-cell filled">9</div>
+              <div class="mini-cell filled">4</div>
+              <div class="mini-cell filled">3</div>
+              <div class="mini-cell filled">8</div>
+              <div class="mini-cell filled">6</div>
+            </div>
+            <div class="strategy-content">
+              <h4>8. Chain Reasoning (Intermediate)</h4>
+              <p>Assume a candidate, follow consequences, and look for contradictions.</p>
+              <p class="example">Example: if “5” fails, the other candidate must be true.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="learn-order">
+          <h3>A Practical Solving Order</h3>
+          <ol>
+            <li>Fill obvious singles.</li>
+            <li>Update all pencil marks.</li>
+            <li>Search for hidden singles.</li>
+            <li>Check each box for pointing pairs.</li>
+            <li>Look for naked pairs.</li>
+            <li>Repeat the cycle.</li>
+          </ol>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>Built for focus. Generated puzzles are deterministic from the seed.</p>
+      </footer>
+    </div>
+
+    <script type="module" src="/sudoku.js"></script>
+  </body>
+</html>

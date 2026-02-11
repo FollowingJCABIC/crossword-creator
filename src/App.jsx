@@ -165,6 +165,10 @@ export default function App() {
               {isPlaying ? "Pause" : "Play"}
             </button>
           </div>
+          <div className="hero-stat hero-link">
+            <span>Sudoku</span>
+            <a className="ghost" href="/sudoku.html">Open</a>
+          </div>
         </div>
       </header>
 
